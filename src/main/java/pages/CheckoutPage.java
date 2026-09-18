@@ -24,6 +24,8 @@ public class CheckoutPage {
     private final By email = By.id("emailInput");
     private final By phone = By.id("phoneInput");
     private final By city = By.id("cityInput");
+    // Helpful locator to detect an empty-cart message if the app displays it
+    private final By cartEmptyMessage = By.xpath("//*[contains(normalize-space(.),'Add some products in the bag')]");
 
     public CheckoutPage(WebDriver d) {
         this.d = d;
@@ -95,5 +97,25 @@ public class CheckoutPage {
             return !d.findElements(confirmation).isEmpty()
                     && d.findElements(confirmation).stream().anyMatch(WebElement::isDisplayed);
         }
+    }
+
+    /**
+     * Returns true when the checkout form (required inputs + submit) is present
+     * and visible. If the cart is empty the form may not be available.
+     */
+    public boolean isCheckoutFormAvailable() {
+        return WaitUtils.visibleIfPresent(d, fn) && WaitUtils.visibleIfPresent(d, submit);
+    }
+
+    /**
+     * Helper used by tests that attempt to verify checkout behavior when the
+     * cart is empty. Returns true when the application blocks checkout because
+     * the cart is empty (either the checkout form isn't available or an empty
+     * cart message is shown).
+     */
+    public boolean isCheckoutBlockedForEmptyCart() {
+        boolean formAvailable = isCheckoutFormAvailable();
+        boolean emptyMsgVisible = WaitUtils.visibleIfPresent(d, cartEmptyMessage);
+        return !formAvailable || emptyMsgVisible;
     }
 }

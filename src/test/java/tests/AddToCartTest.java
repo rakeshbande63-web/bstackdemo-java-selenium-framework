@@ -20,7 +20,7 @@ public class AddToCartTest extends BaseTest {
     public void TC_005_addMultipleItems() {
         ProductPage p = new ProductPage(driver);
         p.open();
-        p.addProducts(3);
+        p.addThreeProducts();
         CartPage c = new CartPage(driver);
         Assert.assertTrue(c.itemCount() >= 3, "Cart should contain at least two products");
         extentTest.pass("[PASS] Multiple products added to cart");
