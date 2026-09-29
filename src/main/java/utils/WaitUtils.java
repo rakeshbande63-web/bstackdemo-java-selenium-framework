@@ -71,6 +71,13 @@ public final class WaitUtils {
         present(d, by).sendKeys(keys);
     }
 
+    /** Clears the field and types the value. */
+    public static void fill(WebDriver d, By by, String value) {
+        WebElement field = visible(d, by);
+        field.clear();
+        field.sendKeys(value);
+    }
+
     /** Returns true if any of the locators becomes displayed within the given time. */
     public static boolean waitForAny(WebDriver d, int seconds, By... locators) {
         try {

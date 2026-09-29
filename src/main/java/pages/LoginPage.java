@@ -1,76 +1,63 @@
 package pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import utils.ConfigReader;
 import utils.WaitUtils;
 
 /**
- * Sign-in page of bstackdemo.com.
- * Username and password are react-select dropdowns: click the container, type the value,
- * press TAB to select the highlighted option.
+ * /login page.
+ * Confirmed locators (matches a public Serenity BDD page object built against this exact
+ * app): email, password, submit, signup.
  */
 public class LoginPage {
 
-    private static final int OUTCOME_WAIT_SECONDS = 8;
-
     private final WebDriver d;
 
-    private final By signInLink = By.xpath("//*[@id='signin']");
-    private final By usernameBox = By.xpath("//div[@id='username']");
-    private final By usernameInput = By.xpath("//div[@id='username']//input");
-    private final By passwordBox = By.xpath("//div[@id='password']");
-    private final By passwordInput = By.xpath("//div[@id='password']//input");
-    private final By loginButton = By.xpath("//button[@id='login-btn']");
-    private final By logoutLink = By.xpath("//*[@id='logout' or normalize-space(text())='Logout']");
-    private final By errorMessage = By.xpath("//h3[contains(@class,'api-error')]");
+    private final By emailInput = By.id("email");
+    private final By passwordInput = By.id("password");
+    private final By submitButton = By.id("submit");
+    private final By signupLink = By.id("signup");
+    private final By errorMessage = By.xpath("//*[contains(@class,'error') or contains(normalize-space(text()),'Incorrect')]");
 
     public LoginPage(WebDriver d) {
         this.d = d;
     }
 
-    /** Opens the home page and navigates to the sign-in form. */
     public LoginPage open() {
-        d.get(ConfigReader.get("baseUrl"));
+        d.get(ConfigReader.get("baseUrl") + "/login");
         WaitUtils.ready(d);
-        WaitUtils.click(d, signInLink);
-        WaitUtils.visible(d, usernameBox);
-        WaitUtils.visible(d, passwordBox);
+        WaitUtils.visible(d, emailInput);
         return this;
     }
 
-    /**
-     * Fills the form, clicks Login and waits for the outcome.
-     * A null/empty value leaves that field untouched.
-     *
-     * @return true when the user ended up logged in (Logout link visible)
-     */
-    public boolean login(String user, String pwd) {
-        selectValue(usernameBox, usernameInput, user);
-        selectValue(passwordBox, passwordInput, pwd);
-        WaitUtils.click(d, loginButton);
-        WaitUtils.waitForAny(d, OUTCOME_WAIT_SECONDS, logoutLink, errorMessage);
-        return isLoggedIn();
+    public ContactListPage login(String email, String password) {
+        WaitUtils.fill(d, emailInput, email);
+        WaitUtils.fill(d, passwordInput, password);
+        WaitUtils.click(d, submitButton);
+        return new ContactListPage(d);
     }
 
-    private void selectValue(By box, By input, String value) {
-        if (value == null || value.isEmpty()) {
-            return;
-        }
-        WaitUtils.click(d, box);
-        WaitUtils.type(d, input, value, Keys.TAB);
+    /** Attempts login and stays on this page when it fails (invalid-credentials scenarios). */
+    public LoginPage loginExpectingFailure(String email, String password) {
+        WaitUtils.fill(d, emailInput, email);
+        WaitUtils.fill(d, passwordInput, password);
+        WaitUtils.click(d, submitButton);
+        WaitUtils.waitForAny(d, 8, errorMessage);
+        return this;
     }
 
-    public boolean isLoggedIn() {
-        return WaitUtils.isDisplayedNow(d, logoutLink);
+    public AddUserPage goToSignUp() {
+        WaitUtils.click(d, signupLink);
+        return new AddUserPage(d);
     }
 
-    public boolean isOnSignInPage() {
-        return d.getCurrentUrl().contains("signin");
+    public boolean isOnLoginPage() {
+        // URL-based checks are unreliable here: logout can redirect to '/' rather than
+        // '/login', and both serve the same login form. Wait for the form itself instead.
+        return WaitUtils.waitForAny(d, 8, emailInput);
     }
 
-    /** Visible validation/error text, or an empty string when none is shown. */
     public String getErrorText() {
         return WaitUtils.isDisplayedNow(d, errorMessage) ? d.findElement(errorMessage).getText() : "";
     }

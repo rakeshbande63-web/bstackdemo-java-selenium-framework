@@ -21,13 +21,13 @@ public final class ExtentManager {
                 // reporter will surface the problem when it tries to write
             }
             ExtentSparkReporter reporter = new ExtentSparkReporter("test-output/ExtentReport.html");
-            reporter.config().setReportName("bstackdemo.com Automation Report");
-            reporter.config().setDocumentTitle("Java Selenium Test Execution Report");
+            reporter.config().setReportName("Contact List Capstone Report");
+            reporter.config().setDocumentTitle("API + UI Test Execution Report");
 
             extent = new ExtentReports();
             extent.attachReporter(reporter);
-            extent.setSystemInfo("Application", "bstackdemo.com");
-            extent.setSystemInfo("Framework", "Java + Selenium + TestNG + POM");
+            extent.setSystemInfo("Application", "thinking-tester-contact-list.herokuapp.com");
+            extent.setSystemInfo("Framework", "Java + RestAssured + Selenium + TestNG + POM");
         }
         return extent;
     }

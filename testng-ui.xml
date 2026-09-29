@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Contact List Capstone Suite">
+<suite name="Contact List UI Suite">
   <listeners>
     <listener class-name="listeners.SuiteReportListener"/>
   </listeners>
-  <test name="API Tests (RestAssured)">
-    <classes>
-      <class name="tests.api.ContactApiTest"/>
-    </classes>
-  </test>
   <test name="UI Tests (Selenium)">
     <classes>
       <class name="tests.ui.ContactUiTest"/>
